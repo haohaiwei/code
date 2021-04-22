@@ -1,0 +1,26 @@
+# s3 分片上传测试工具
+* usage
+```bash
+
+Usage of ./s3:
+  -ak string
+    	ak
+  -bucket string
+    	bucket
+  -concurrent int
+    	how many file concurrent upload (default 1)
+  -fsize int
+    	fsize size (default 1)
+  -key string
+    	filekey (default "key")
+  -part_size int
+    	part size (default 5)
+  -region string
+    	region (default "cn-east-1")
+  -s3endponit string
+    	s3endponit
+  -sk string
+    	sk
+
+```
+
