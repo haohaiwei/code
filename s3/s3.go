@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/juju/ratelimit"
 )
 
 
@@ -24,7 +25,9 @@ func main() {
 	region := flag.String("region","cn-east-1","region" )
 	key := flag.String("key", "key", "filekey" )
 	part_size := flag.Int64("part_size", 5, "part size")
+	speed := flag.Int64("speed", 100, "MB")
 	flag.Parse()
+	b := float64(*speed)
 	awsConfig := &aws.Config{
 		Region:      aws.String(*region),
 		Endpoint:    aws.String(*s3endpoint),
@@ -52,11 +55,13 @@ func main() {
 	}
 	defer f.Close()
 	rdr := io.NewSectionReader(f, 0, *fsize * 1024 * 1024)
+	limit := ratelimit.NewBucketWithRate(b * 1024 * 1024, *speed * 1024 * 1024)
+	body := ratelimit.Reader(rdr, limit)
 	// Upload the file to S3.
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(*bucket),
 		Key:    aws.String(*key),
-		Body:   rdr,
+		Body:   body,
 	})
 
 	//in case it fails to upload
